@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useState, useContext } from 'react'
+import { UserContext } from '../../context/UserContext.jsx'
 import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { registerService } from '../../services/authServices.js'
+import { Navigate } from 'react-router'
 
 const RegisterForm = () => {
     const {
@@ -13,12 +15,24 @@ const RegisterForm = () => {
         mode: 'onChange', // validacion en tiempo real
     })
 
+    const { userInfo, checkSession } = useContext(UserContext)
     const [showPassword, setShowPassword] = useState(false)
+    const [redirect, setRedirect] = useState(false)
 
     const onSubmit = (data) => {
         //registrando al usuario
-        registerService(data, reset)
+        registerService(data, reset, setRedirect, checkSession)
     }
+
+    if (redirect && userInfo.isAdmin) {
+        // Lleavarlo a la pagina admin
+    }
+
+    if (redirect && !userInfo.isAdmin) {
+        // Llevarlo a la pagina de usuario
+        return <Navigate to="/" />
+    }
+
     return (
         <form
             onSubmit={handleSubmit(onSubmit)}
